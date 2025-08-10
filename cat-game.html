@@ -9,6 +9,10 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
       }
 
       body {
@@ -16,6 +20,7 @@
         font-family: "Comic Sans MS", cursive, sans-serif;
         overflow: hidden;
         height: 100vh;
+        touch-action: manipulation;
       }
 
       #game-container {
@@ -37,33 +42,34 @@
       #cat {
         position: absolute;
         bottom: 100px;
-        left: 100px;
-        width: 60px;
-        height: 60px;
+        left: 80px;
+        width: 70px;
+        height: 70px;
         background: #ffa500;
         border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-        transition: bottom 0.3s ease;
+        transition: bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        z-index: 10;
       }
 
       #cat::before {
         content: "";
         position: absolute;
-        top: -10px;
-        left: 10px;
-        width: 15px;
-        height: 15px;
+        top: -12px;
+        left: 12px;
+        width: 18px;
+        height: 18px;
         background: #ffa500;
         border-radius: 50%;
-        box-shadow: 25px 0 0 #ffa500;
+        box-shadow: 28px 0 0 #ffa500;
       }
 
       #cat::after {
         content: "";
         position: absolute;
-        top: 15px;
-        left: 15px;
-        width: 30px;
-        height: 20px;
+        top: 20px;
+        left: 18px;
+        width: 35px;
+        height: 25px;
         background: #ff8c00;
         border-radius: 50%;
       }
@@ -71,8 +77,8 @@
       .obstacle {
         position: absolute;
         bottom: 100px;
-        width: 40px;
-        height: 60px;
+        width: 45px;
+        height: 70px;
         background: #228b22;
         border-radius: 10px 10px 0 0;
       }
@@ -80,19 +86,19 @@
       .obstacle::before {
         content: "";
         position: absolute;
-        top: -20px;
+        top: -25px;
         left: 50%;
         transform: translateX(-50%);
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
         background: #228b22;
         border-radius: 50%;
       }
 
       .coin {
         position: absolute;
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
         background: radial-gradient(circle, #ffd700, #ffb300);
         border-radius: 50%;
         border: 2px solid #ff8c00;
@@ -101,7 +107,7 @@
         justify-content: center;
         font-weight: bold;
         color: #ff8c00;
-        font-size: 16px;
+        font-size: 18px;
       }
 
       .coin::before {
@@ -110,27 +116,29 @@
 
       #score {
         position: absolute;
-        top: 20px;
-        right: 20px;
-        font-size: 24px;
+        top: 15px;
+        right: 15px;
+        font-size: 20px;
         color: #333;
         font-weight: bold;
-        background: rgba(255, 255, 255, 0.8);
-        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px 16px;
         border-radius: 20px;
+        z-index: 100;
       }
 
       #coins-display {
         position: absolute;
-        top: 70px;
-        right: 20px;
-        font-size: 20px;
+        top: 60px;
+        right: 15px;
+        font-size: 18px;
         color: #333;
         font-weight: bold;
-        background: rgba(255, 215, 0, 0.8);
-        padding: 8px 16px;
+        background: rgba(255, 215, 0, 0.9);
+        padding: 6px 12px;
         border-radius: 20px;
         border: 2px solid #ff8c00;
+        z-index: 100;
       }
 
       #game-over {
@@ -138,37 +146,42 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(255, 255, 255, 0.9);
-        padding: 40px;
-        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 25px;
         text-align: center;
         display: none;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        min-width: 280px;
       }
 
       #game-over h2 {
         color: #ff6b6b;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
+        font-size: 28px;
       }
 
       #restart-btn {
-        background: #ffa500;
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
         color: white;
         border: none;
         padding: 15px 30px;
-        border-radius: 25px;
-        font-size: 18px;
+        border-radius: 30px;
+        font-size: 20px;
         cursor: pointer;
         transition: all 0.3s ease;
+        margin-top: 15px;
+        min-width: 150px;
       }
 
       #restart-btn:hover {
-        background: #ff8c00;
+        background: linear-gradient(135deg, #ff8c00, #ff6b00);
         transform: scale(1.05);
       }
 
       .jumping {
-        bottom: 200px !important;
+        bottom: 250px !important;
       }
 
       .cloud {
@@ -180,13 +193,89 @@
 
       #instructions {
         position: absolute;
-        top: 20px;
-        left: 20px;
-        background: rgba(255, 255, 255, 0.8);
-        padding: 15px;
+        top: 15px;
+        left: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 12px;
         border-radius: 15px;
         font-size: 14px;
         color: #333;
+        z-index: 100;
+        max-width: 200px;
+      }
+
+      /* Mobile-specific styles */
+      @media (max-width: 768px) {
+        #cat {
+          left: 60px;
+          width: 65px;
+          height: 65px;
+        }
+
+        .obstacle {
+          width: 40px;
+          height: 65px;
+        }
+
+        #instructions {
+          font-size: 12px;
+          padding: 10px;
+          max-width: 150px;
+        }
+
+        #score,
+        #coins-display {
+          font-size: 16px;
+          padding: 6px 12px;
+        }
+      }
+
+      /* Touch feedback */
+      .touch-feedback {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.1s ease;
+        z-index: 999;
+      }
+
+      .touch-feedback.active {
+        opacity: 1;
+      }
+
+      /* Jump button for mobile */
+      #jump-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle, #ffa500, #ff8c00);
+        border: none;
+        border-radius: 50%;
+        font-size: 30px;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        display: none;
+        transition: all 0.2s ease;
+      }
+
+      #jump-button:active {
+        transform: scale(0.9);
+        background: radial-gradient(circle, #ff8c00, #ff6b00);
+      }
+
+      @media (max-width: 768px) {
+        #jump-button {
+          display: block;
+        }
       }
     </style>
   </head>
@@ -515,3 +604,4 @@
     </script>
   </body>
 </html>
+
