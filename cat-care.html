@@ -638,25 +638,84 @@
       manualBathBtn.onclick = startBathing;
       document.querySelector(".action-section").appendChild(manualBathBtn);
 
-      // Drag functionality for shower
+      // Drag functionality for shower - supports both mouse and touch
       let isDragging = false;
       let offsetX, offsetY;
+      let initialX, initialY;
 
-      shower.addEventListener("mousedown", (e) => {
+      // Helper function to get coordinates from mouse or touch events
+      function getEventCoordinates(e) {
+        if (e.touches && e.touches.length > 0) {
+          return {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY,
+          };
+        }
+        return {
+          x: e.clientX,
+          y: e.clientY,
+        };
+      }
+
+      // Mouse events
+      shower.addEventListener("mousedown", handleStart);
+      document.addEventListener("mousemove", handleMove);
+      document.addEventListener("mouseup", handleEnd);
+
+      // Touch events for mobile - improved for better compatibility
+      shower.addEventListener("touchstart", handleStart, { passive: false });
+      document.addEventListener("touchmove", handleMove, { passive: false });
+      document.addEventListener("touchend", handleEnd);
+
+      function handleStart(e) {
         if (!isBathing) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
         isDragging = true;
         shower.style.cursor = "grabbing";
-        offsetX = e.clientX - shower.offsetLeft;
-        offsetY = e.clientY - shower.offsetTop;
-      });
+        shower.style.zIndex = "1001";
 
-      document.addEventListener("mousemove", (e) => {
+        const coords = getEventCoordinates(e);
+        const rect = shower.getBoundingClientRect();
+
+        // Calculate offset from center of shower element
+        offsetX = coords.x - rect.left;
+        offsetY = coords.y - rect.top;
+
+        // Store initial position for touch events
+        initialX = coords.x;
+        initialY = coords.y;
+
+        // Add active class for visual feedback
+        shower.style.transform = "scale(1.1)";
+      }
+
+      function handleMove(e) {
         if (!isDragging) return;
-        shower.style.left = e.clientX - offsetX + "px";
-        shower.style.top = e.clientY - offsetY + "px";
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const coords = getEventCoordinates(e);
+
+        // Calculate new position
+        const newX = coords.x - offsetX;
+        const newY = coords.y - offsetY;
+
+        // Ensure shower stays within viewport bounds
+        const maxX = window.innerWidth - shower.offsetWidth;
+        const maxY = window.innerHeight - shower.offsetHeight;
+
+        const boundedX = Math.max(0, Math.min(newX, maxX));
+        const boundedY = Math.max(0, Math.min(newY, maxY));
+
+        shower.style.left = boundedX + "px";
+        shower.style.top = boundedY + "px";
 
         // Create water droplets while dragging
-        createWaterDroplet(e.clientX, e.clientY);
+        createWaterDroplet(coords.x, coords.y);
 
         // Check if shower is over cat
         const catRect = catContainer.getBoundingClientRect();
@@ -677,7 +736,7 @@
 
             // Visual feedback
             shower.style.transform = "scale(1.2)";
-            setTimeout(() => (shower.style.transform = "scale(1)"), 200);
+            setTimeout(() => (shower.style.transform = "scale(1.1)"), 200);
 
             if (dirtiness === 0) {
               showMessage("✨ Your cat is now clean and happy!", "success");
@@ -686,11 +745,35 @@
             }
           }
         }
-      });
+      }
 
-      document.addEventListener("mouseup", () => {
+      function handleEnd(e) {
+        if (!isDragging) return;
+
         isDragging = false;
         shower.style.cursor = "grab";
+        shower.style.transform = "scale(1)";
+
+        // Reset z-index
+        shower.style.zIndex = "1000";
+      }
+
+      // Enhanced touch support for mobile devices
+      shower.addEventListener(
+        "touchstart",
+        function (e) {
+          if (!isBathing) return;
+
+          // Prevent scrolling while dragging
+          document.body.style.touchAction = "none";
+          handleStart(e);
+        },
+        { passive: false }
+      );
+
+      shower.addEventListener("touchend", function (e) {
+        document.body.style.touchAction = "auto";
+        handleEnd(e);
       });
 
       // Create water droplet element at x,y
