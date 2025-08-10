@@ -475,7 +475,7 @@
         jump();
       });
 
-      // Add touch event listener for mobile devices
+      // Enhanced touch event listeners for mobile devices
       document.addEventListener(
         "touchstart",
         (e) => {
@@ -484,6 +484,23 @@
         },
         { passive: false }
       );
+
+      // Ensure restart button works on mobile with both click and touch
+      const restartBtn = document.getElementById("restart-btn");
+      restartBtn.addEventListener("click", restartGame);
+      restartBtn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        restartGame();
+      });
+
+      // Ensure home button works on mobile - prevent touch interference
+      const homeBtn = document.querySelector('a[href="index.html"]');
+      if (homeBtn) {
+        homeBtn.addEventListener("touchstart", (e) => {
+          // Allow default navigation behavior
+          e.stopPropagation();
+        });
+      }
 
       // Initialize game
       createObstacle();
@@ -498,4 +515,3 @@
     </script>
   </body>
 </html>
-
