@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🐱 Cat Care Game - Shop</title>
+    <style>
+      body {
+        font-family: "Comic Sans MS", cursive, sans-serif;
+        background: linear-gradient(to bottom, #f0e6f6, #e6f3ff);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      h1 {
+        color: #ff6f91;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      #cat {
+        width: 150px;
+        height: 150px;
+        background: url("https://cdn-icons-png.flaticon.com/512/1864/1864514.png")
+          no-repeat center/contain;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+      }
+
+      #cat:hover {
+        transform: scale(1.1) rotate(5deg);
+      }
+
+      .stats-container {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .stat-box {
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      #status {
+        background: rgba(255, 182, 193, 0.8);
+        border: 2px solid #ff69b4;
+      }
+
+      #coins-display {
+        background: rgba(255, 215, 0, 0.8);
+        border: 2px solid #ff8c00;
+      }
+
+      #food-inventory {
+        background: rgba(144, 238, 144, 0.8);
+        border: 2px solid #32cd32;
+      }
+
+      .action-section {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        color: #ff6f91;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .shop-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .shop-item {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        padding: 20px;
+        border-radius: 15px;
+        border: 2px solid #e9ecef;
+        transition: transform 0.3s ease;
+      }
+
+      .shop-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .shop-item h3 {
+        color: #333;
+        margin-bottom: 8px;
+        font-size: 1.2rem;
+      }
+
+      .shop-item p {
+        color: #666;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+      }
+
+      .price {
+        font-weight: bold;
+        color: #ff6f91;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+      }
+
+      button {
+        background: linear-gradient(135deg, #ff6f91, #ff4f70);
+        border: none;
+        color: white;
+        padding: 12px 24px;
+        margin: 5px;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      button:hover:not(:disabled) {
+        background: linear-gradient(135deg, #ff4f70, #ff3f5f);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      #message {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        font-weight: bold;
+        display: none;
+        max-width: 400px;
+        text-align: center;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .error {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .emoji {
+        font-size: 1.5rem;
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🐱 Cat Care Game</h1>
+    <div id="cat"></div>
+
+    <div class="stats-container">
+      <div class="stat-box" id="status">Happiness: 50 😸</div>
+      <div class="stat-box" id="coins-display">Coins: 0 🪙</div>
+      <div class="stat-box" id="food-inventory">Food: 0 🐟</div>
+    </div>
+
+    <div class="action-section">
+      <h2 class="section-title">🎮 Quick Actions</h2>
+      <div class="action-buttons">
+        <button id="feedBtn" disabled>
+          <span class="emoji">🍽️</span>Feed Cat
+        </button>
+        <button id="feedPremiumBtn" disabled>
+          <span class="emoji">🍗</span>Feed Premium
+        </button>
+        <button id="playBtn"><span class="emoji">🎾</span>Play</button>
+        <button id="playToyBtn" disabled>
+          <span class="emoji">🎁</span>Use Toy
+        </button>
+      </div>
+    </div>
+
+    <div class="action-section">
+      <h2 class="section-title">🛒 Shop (Bottom Section)</h2>
+      <div class="shop-grid">
+        <div class="shop-item">
+          <h3>🐟 Regular Cat Food</h3>
+          <p>Basic nutrition for your cat</p>
+          <div class="price">1 Coin</div>
+          <button id="buyFoodBtn">Buy Now</button>
+        </div>
+
+        <div class="shop-item">
+          <h3>🍗 Premium Cat Food</h3>
+          <p>Extra tasty and nutritious</p>
+          <div class="price">3 Coins</div>
+          <button id="buyPremiumBtn">Buy Now</button>
+        </div>
+
+        <div class="shop-item">
+          <h3>🎁 Toy Bundle</h3>
+          <p>Fun toys for playtime</p>
+          <div class="price">5 Coins</div>
+          <button id="buyToyBtn">Buy Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="message"></div>
+
+    <script>
+      let happiness = 50;
+      let catFood = 0;
+      let premiumFood = 0;
+      let toys = 0;
+      let totalCoins = parseInt(localStorage.getItem("totalCoins")) || 0;
+
+      const statusEl = document.getElementById("status");
+      const coinsDisplayEl = document.getElementById("coins-display");
+      const foodInventoryEl = document.getElementById("food-inventory");
+      const buyFoodBtn = document.getElementById("buyFoodBtn");
+      const buyPremiumBtn = document.getElementById("buyPremiumBtn");
+      const buyToyBtn = document.getElementById("buyToyBtn");
+      const feedBtn = document.getElementById("feedBtn");
+      const feedPremiumBtn = document.getElementById("feedPremiumBtn");
+      const playBtn = document.getElementById("playBtn");
+      const playToyBtn = document.getElementById("playToyBtn");
+      const messageEl = document.getElementById("message");
+
+      // Update displays
+      function updateDisplays() {
+        statusEl.textContent = "Happiness: " + happiness;
+        coinsDisplayEl.textContent = "Coins: " + totalCoins;
+
+        let inventoryText = "Food: " + catFood;
+        if (premiumFood > 0) inventoryText += " | Premium: " + premiumFood;
+        if (toys > 0) inventoryText += " | Toys: " + toys;
+        foodInventoryEl.textContent = inventoryText;
+
+        // Update cat emoji based on happiness
+        let emoji = "😸";
+        if (happiness >= 80) emoji = "😺";
+        else if (happiness >= 50) emoji = "😸";
+        else if (happiness >= 20) emoji = "😼";
+        else emoji = "😿";
+
+        statusEl.textContent = "Happiness: " + happiness + " " + emoji;
+
+        // Enable/disable buttons based on inventory
+        feedBtn.disabled = catFood <= 0;
+        feedPremiumBtn.disabled = premiumFood <= 0;
+        playToyBtn.disabled = toys <= 0;
+      }
+
+      // Show message
+      function showMessage(text, type) {
+        messageEl.textContent = text;
+        messageEl.className = type;
+        messageEl.style.display = "block";
+        setTimeout(() => {
+          messageEl.style.display = "none";
+        }, 3000);
+      }
+
+      // Shop functions
+      buyFoodBtn.addEventListener("click", () => {
+        if (totalCoins >= 1) {
+          totalCoins--;
+          catFood++;
+          localStorage.setItem("totalCoins", totalCoins);
+          updateDisplays();
+          showMessage("🐟 Bought regular cat food!", "success");
+        } else {
+          showMessage(
+            "💰 Not enough coins! Play cat-game to earn more.",
+            "error"
+          );
+        }
+      });
+
+      buyPremiumBtn.addEventListener("click", () => {
+        if (totalCoins >= 3) {
+          totalCoins -= 3;
+          premiumFood++;
+          localStorage.setItem("totalCoins", totalCoins);
+          updateDisplays();
+          showMessage("🍗 Bought premium cat food!", "success");
+        } else {
+          showMessage("💰 Need 3 coins for premium food!", "error");
+        }
+      });
+
+      buyToyBtn.addEventListener("click", () => {
+        if (totalCoins >= 5) {
+          totalCoins -= 5;
+          toys++;
+          localStorage.setItem("totalCoins", totalCoins);
+          updateDisplays();
+          showMessage("🎁 Bought toy bundle!", "success");
+        } else {
+          showMessage("💰 Need 5 coins for toy bundle!", "error");
+        }
+      });
+
+      // Care functions
+      feedBtn.addEventListener("click", () => {
+        if (catFood > 0) {
+          catFood--;
+          happiness = Math.min(happiness + 15, 100);
+          updateDisplays();
+          showMessage("🍽️ Fed cat with regular food! +15 happiness", "success");
+        }
+      });
+
+      feedPremiumBtn.addEventListener("click", () => {
+        if (premiumFood > 0) {
+          premiumFood--;
+          happiness = Math.min(happiness + 25, 100);
+          updateDisplays();
+          showMessage("🍗 Fed cat with premium food! +25 happiness", "success");
+        }
+      });
+
+      playBtn.addEventListener("click", () => {
+        happiness = Math.min(happiness + 10, 100);
+        updateDisplays();
+        showMessage("🎾 Played with cat! +10 happiness", "success");
+      });
+
+      playToyBtn.addEventListener("click", () => {
+        if (toys > 0) {
+          toys--;
+          happiness = Math.min(happiness + 30, 100);
+          updateDisplays();
+          showMessage("🎁 Played with toys! +30 happiness", "success");
+        }
+      });
+
+      // Decrease happiness over time
+      setInterval(() => {
+        happiness = Math.max(happiness - 2, 0);
+        updateDisplays();
+      }, 6000);
+
+      // Initialize
+      updateDisplays();
+    </script>
+  </body>
+</html>

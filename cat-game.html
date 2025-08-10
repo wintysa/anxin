@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🐱 Cat Runner Game</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(to bottom, #87ceeb 0%, #98fb98 100%);
+        font-family: "Comic Sans MS", cursive, sans-serif;
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      #game-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      #ground {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(to bottom, #8b4513, #654321);
+        border-top: 3px solid #5d4037;
+      }
+
+      #cat {
+        position: absolute;
+        bottom: 100px;
+        left: 100px;
+        width: 60px;
+        height: 60px;
+        background: #ffa500;
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        transition: bottom 0.3s ease;
+      }
+
+      #cat::before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        width: 15px;
+        height: 15px;
+        background: #ffa500;
+        border-radius: 50%;
+        box-shadow: 25px 0 0 #ffa500;
+      }
+
+      #cat::after {
+        content: "";
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        width: 30px;
+        height: 20px;
+        background: #ff8c00;
+        border-radius: 50%;
+      }
+
+      .obstacle {
+        position: absolute;
+        bottom: 100px;
+        width: 40px;
+        height: 60px;
+        background: #228b22;
+        border-radius: 10px 10px 0 0;
+      }
+
+      .obstacle::before {
+        content: "";
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 30px;
+        background: #228b22;
+        border-radius: 50%;
+      }
+
+      .coin {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background: radial-gradient(circle, #ffd700, #ffb300);
+        border-radius: 50%;
+        border: 2px solid #ff8c00;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #ff8c00;
+        font-size: 16px;
+      }
+
+      .coin::before {
+        content: "$";
+      }
+
+      #score {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 24px;
+        color: #333;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 20px;
+      }
+
+      #coins-display {
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        font-size: 20px;
+        color: #333;
+        font-weight: bold;
+        background: rgba(255, 215, 0, 0.8);
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 2px solid #ff8c00;
+      }
+
+      #game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        display: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      #game-over h2 {
+        color: #ff6b6b;
+        margin-bottom: 20px;
+      }
+
+      #restart-btn {
+        background: #ffa500;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      #restart-btn:hover {
+        background: #ff8c00;
+        transform: scale(1.05);
+      }
+
+      .jumping {
+        bottom: 200px !important;
+      }
+
+      .cloud {
+        position: absolute;
+        background: white;
+        border-radius: 50px;
+        opacity: 0.8;
+      }
+
+      #instructions {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 15px;
+        border-radius: 15px;
+        font-size: 14px;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="instructions">
+        <strong>🐱 Cat Runner Game</strong><br />
+        Click or press SPACE to jump!
+      </div>
+
+      <div id="score">Score: 0</div>
+      <div id="coins-display">Coins: 0</div>
+      <div id="ground"></div>
+      <div id="cat"></div>
+
+      <div id="game-over">
+        <h2>🐱 Game Over!</h2>
+        <p>Your cat got hit by a tree!</p>
+        <p>Final Score: <span id="final-score">0</span></p>
+        <button id="restart-btn" onclick="restartGame()">Play Again 🐱</button>
+      </div>
+    </div>
+
+    <script>
+      const cat = document.getElementById("cat");
+      const scoreElement = document.getElementById("score");
+      const coinsDisplayElement = document.getElementById("coins-display");
+      const gameOverElement = document.getElementById("game-over");
+      const finalScoreElement = document.getElementById("final-score");
+      const gameContainer = document.getElementById("game-container");
+
+      let isJumping = false;
+      let isGameOver = false;
+      let score = 0;
+      let coins = 0;
+      let gameSpeed = 5;
+      let obstacles = [];
+      let coinsArray = [];
+      let clouds = [];
+      let gameLoop;
+
+      // Load coins from localStorage
+      let totalCoins = parseInt(localStorage.getItem("totalCoins")) || 0;
+      coinsDisplayElement.textContent = "Coins: " + totalCoins;
+
+      // Jump function
+      function jump() {
+        if (!isJumping && !isGameOver) {
+          isJumping = true;
+          cat.classList.add("jumping");
+
+          setTimeout(() => {
+            cat.classList.remove("jumping");
+            isJumping = false;
+          }, 300);
+        }
+      }
+
+      // Create obstacle
+      function createObstacle() {
+        if (isGameOver) return;
+
+        const obstacle = document.createElement("div");
+        obstacle.classList.add("obstacle");
+        obstacle.style.left = window.innerWidth + "px";
+        gameContainer.appendChild(obstacle);
+        obstacles.push(obstacle);
+
+        const nextTime = Math.random() * 2000 + 1000;
+        setTimeout(createObstacle, nextTime);
+      }
+
+      // Create coin
+      function createCoin() {
+        if (isGameOver) return;
+
+        const coin = document.createElement("div");
+        coin.classList.add("coin");
+        coin.style.left = window.innerWidth + "px";
+        coin.style.bottom = Math.random() * 100 + 100 + "px";
+        gameContainer.appendChild(coin);
+        coinsArray.push(coin);
+
+        const nextTime = Math.random() * 3000 + 2000;
+        setTimeout(createCoin, nextTime);
+      }
+
+      // Create cloud
+      function createCloud() {
+        const cloud = document.createElement("div");
+        cloud.classList.add("cloud");
+        const size = Math.random() * 50 + 30;
+        cloud.style.width = size + "px";
+        cloud.style.height = size / 2 + "px";
+        cloud.style.top = Math.random() * 200 + "px";
+        cloud.style.left = window.innerWidth + "px";
+        gameContainer.appendChild(cloud);
+        clouds.push(cloud);
+      }
+
+      // Move obstacles
+      function moveObstacles() {
+        if (isGameOver) return;
+
+        obstacles.forEach((obstacle, index) => {
+          const obstacleLeft = parseInt(obstacle.style.left);
+          obstacle.style.left = obstacleLeft - gameSpeed + "px";
+
+          if (obstacleLeft < -50) {
+            obstacle.remove();
+            obstacles.splice(index, 1);
+            score += 10;
+            scoreElement.textContent = "Score: " + score;
+
+            // Increase game speed
+            if (score % 100 === 0) {
+              gameSpeed += 1;
+            }
+          }
+
+          // Collision detection
+          const catRect = cat.getBoundingClientRect();
+          const obstacleRect = obstacle.getBoundingClientRect();
+
+          if (
+            catRect.left < obstacleRect.right &&
+            catRect.right > obstacleRect.left &&
+            catRect.bottom > obstacleRect.top
+          ) {
+            gameOver();
+          }
+        });
+      }
+
+      // Move coins
+      function moveCoins() {
+        if (isGameOver) return;
+
+        coinsArray.forEach((coin, index) => {
+          const coinLeft = parseInt(coin.style.left);
+          coin.style.left = coinLeft - gameSpeed + "px";
+
+          if (coinLeft < -50) {
+            coin.remove();
+            coinsArray.splice(index, 1);
+          }
+
+          // Coin collection detection
+          const catRect = cat.getBoundingClientRect();
+          const coinRect = coin.getBoundingClientRect();
+
+          if (
+            catRect.left < coinRect.right &&
+            catRect.right > coinRect.left &&
+            catRect.bottom > coinRect.top &&
+            catRect.top < coinRect.bottom
+          ) {
+            // Collect coin
+            coin.remove();
+            coinsArray.splice(index, 1);
+            coins++;
+            totalCoins++;
+            localStorage.setItem("totalCoins", totalCoins);
+            coinsDisplayElement.textContent = "Coins: " + totalCoins;
+          }
+        });
+      }
+
+      // Move clouds
+      function moveClouds() {
+        clouds.forEach((cloud, index) => {
+          const cloudLeft = parseInt(cloud.style.left);
+          cloud.style.left = cloudLeft - 1 + "px";
+
+          if (cloudLeft < -100) {
+            cloud.remove();
+            clouds.splice(index, 1);
+          }
+        });
+      }
+
+      // Game over
+      function gameOver() {
+        isGameOver = true;
+        finalScoreElement.textContent = score;
+        gameOverElement.style.display = "block";
+        clearInterval(gameLoop);
+      }
+
+      // Restart game
+      function restartGame() {
+        isGameOver = false;
+        score = 0;
+        coins = 0;
+        gameSpeed = 5;
+        scoreElement.textContent = "Score: 0";
+        gameOverElement.style.display = "none";
+
+        obstacles.forEach((obstacle) => obstacle.remove());
+        coinsArray.forEach((coin) => coin.remove());
+        clouds.forEach((cloud) => cloud.remove());
+        obstacles = [];
+        coinsArray = [];
+        clouds = [];
+
+        createObstacle();
+        createCoin();
+        gameLoop = setInterval(() => {
+          moveObstacles();
+          moveCoins();
+          moveClouds();
+        }, 20);
+      }
+
+      // Event listeners
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space" || e.code === "ArrowUp") {
+          e.preventDefault();
+          jump();
+        }
+      });
+
+      document.addEventListener("click", () => {
+        jump();
+      });
+
+      // Add touch event listener for mobile devices
+      document.addEventListener(
+        "touchstart",
+        (e) => {
+          e.preventDefault();
+          jump();
+        },
+        { passive: false }
+      );
+
+      // Initialize game
+      createObstacle();
+      createCoin();
+      setInterval(createCloud, 3000);
+      setInterval(createCoin, 4000);
+      gameLoop = setInterval(() => {
+        moveObstacles();
+        moveCoins();
+        moveClouds();
+      }, 20);
+    </script>
+  </body>
+</html>
