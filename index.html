@@ -3,466 +3,604 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🌸 Jeanxin Pages - Interactive Portfolio</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
+    <title>🐱 Cat Runner Game</title>
     <style>
-      body {
+      * {
         margin: 0;
-        font-family: "Quicksand", sans-serif;
-        color: #333;
-        overflow-x: hidden;
-        background: radial-gradient(
-            circle at top left,
-            #ffe6f0 0%,
-            #d6f5ff 40%,
-            #f4e8ff 100%
-          ),
-          url("https://www.transparenttextures.com/patterns/diamond-upholstery.png");
-        background-size: cover, 300px 300px;
-        animation: gradientMove 15s ease infinite;
-      }
-      @keyframes gradientMove {
-        0% {
-          background-position: 0% 50%;
-        }
-        50% {
-          background-position: 100% 50%;
-        }
-        100% {
-          background-position: 0% 50%;
-        }
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
       }
 
-      /* Enhanced Bubble Background */
-      .bubble {
-        position: fixed;
-        border-radius: 50%;
-        opacity: 0.4;
-        animation: float 20s infinite ease-in-out,
-          colorShift 8s infinite alternate;
-        z-index: -1;
-      }
-      @keyframes float {
-        0% {
-          transform: translateY(0) translateX(0);
-        }
-        50% {
-          transform: translateY(-100px) translateX(50px);
-        }
-        100% {
-          transform: translateY(0) translateX(0);
-        }
-      }
-      @keyframes colorShift {
-        0% {
-          filter: hue-rotate(0deg);
-        }
-        100% {
-          filter: hue-rotate(360deg);
-        }
+      body {
+        background: linear-gradient(to bottom, #87ceeb 0%, #98fb98 100%);
+        font-family: "Comic Sans MS", cursive, sans-serif;
+        overflow: hidden;
+        height: 100vh;
+        touch-action: manipulation;
       }
 
-      /* Interactive Particles */
-      .particle {
-        position: fixed;
-        width: 4px;
-        height: 4px;
-        background: #ff6fa5;
-        border-radius: 50%;
-        pointer-events: none;
-        opacity: 0.8;
-        z-index: 1000;
-      }
-
-      /* Header */
-      header {
-        text-align: center;
-        padding: 50px 20px 20px;
-      }
-      header h1 {
-        font-size: 2.5rem;
-        color: #ff6fa5;
-        text-shadow: 0 2px 6px rgba(255, 111, 165, 0.3);
+      #game-container {
         position: relative;
-        display: inline-block;
-      }
-      header h1::after {
-        content: "✨";
-        position: absolute;
-        animation: sparkle 1.5s infinite;
-        right: -30px;
-        top: 0;
-      }
-      @keyframes sparkle {
-        0%,
-        100% {
-          transform: scale(1) rotate(0deg);
-          opacity: 1;
-        }
-        50% {
-          transform: scale(1.4) rotate(20deg);
-          opacity: 0.7;
-        }
-      }
-      header p {
-        font-size: 1rem;
-        opacity: 0.8;
-      }
-
-      /* Navigation */
-      nav {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin: 20px 0;
-      }
-      nav button {
-        background: rgba(255, 255, 255, 0.5);
-        border: none;
-        padding: 12px 24px;
-        border-radius: 25px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(8px);
-        position: relative;
+        width: 100%;
+        height: 100vh;
         overflow: hidden;
       }
-      nav button:hover {
-        background: rgba(255, 255, 255, 0.9);
-        transform: translateY(-5px) rotate(-2deg);
-        box-shadow: 0 8px 16px rgba(255, 111, 165, 0.3);
+
+      #ground {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(to bottom, #8b4513, #654321);
+        border-top: 3px solid #5d4037;
       }
-      nav button::before {
+
+      #cat {
+        position: absolute;
+        bottom: 100px;
+        left: 80px;
+        width: 70px;
+        height: 70px;
+        background: #ffa500;
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        transition: bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        z-index: 10;
+      }
+
+      #cat::before {
         content: "";
         position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.4),
-          transparent
-        );
-        transition: left 0.5s;
-      }
-      nav button:hover::before {
-        left: 100%;
-      }
-
-      /* Content */
-      .content {
-        max-width: 700px;
-        margin: auto;
-        text-align: center;
-        padding: 25px;
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 18px;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        animation: fadeIn 0.6s ease;
-      }
-      .content h2 {
-        color: #ff6fa5;
-        margin-bottom: 12px;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(15px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      /* Custom Cursor */
-      .cursor {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 12px;
-        height: 12px;
+        top: -12px;
+        left: 12px;
+        width: 18px;
+        height: 18px;
+        background: #ffa500;
         border-radius: 50%;
-        background: #ff6fa5;
-        pointer-events: none;
-        transform: translate(-50%, -50%);
-        transition: transform 0.1s ease;
-        z-index: 10000;
-      }
-      .cursor::after {
-        content: "💖";
-        position: absolute;
-        top: -15px;
-        left: -5px;
-        font-size: 16px;
-        animation: pulse 1s infinite;
-      }
-      @keyframes pulse {
-        0%,
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
-        50% {
-          transform: scale(1.4);
-          opacity: 0.6;
-        }
+        box-shadow: 28px 0 0 #ffa500;
       }
 
-      /* Interactive Elements */
-      .interactive-btn {
-        background: linear-gradient(45deg, #ff6fa5, #ff8a80);
+      #cat::after {
+        content: "";
+        position: absolute;
+        top: 20px;
+        left: 18px;
+        width: 35px;
+        height: 25px;
+        background: #ff8c00;
+        border-radius: 50%;
+      }
+
+      .obstacle {
+        position: absolute;
+        bottom: 100px;
+        width: 45px;
+        height: 70px;
+        background: #228b22;
+        border-radius: 10px 10px 0 0;
+      }
+
+      .obstacle::before {
+        content: "";
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 35px;
+        height: 35px;
+        background: #228b22;
+        border-radius: 50%;
+      }
+
+      .coin {
+        position: absolute;
+        width: 35px;
+        height: 35px;
+        background: radial-gradient(circle, #ffd700, #ffb300);
+        border-radius: 50%;
+        border: 2px solid #ff8c00;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #ff8c00;
+        font-size: 18px;
+      }
+
+      .coin::before {
+        content: "$";
+      }
+
+      #score {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 20px;
+        color: #333;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px 16px;
+        border-radius: 20px;
+        z-index: 100;
+      }
+
+      #coins-display {
+        position: absolute;
+        top: 60px;
+        right: 15px;
+        font-size: 18px;
+        color: #333;
+        font-weight: bold;
+        background: rgba(255, 215, 0, 0.9);
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 2px solid #ff8c00;
+        z-index: 100;
+      }
+
+      #game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 25px;
+        text-align: center;
+        display: none;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        min-width: 280px;
+      }
+
+      #game-over h2 {
+        color: #ff6b6b;
+        margin-bottom: 15px;
+        font-size: 28px;
+      }
+
+      #restart-btn {
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
         color: white;
         border: none;
         padding: 15px 30px;
-        border-radius: 25px;
-        font-size: 16px;
+        border-radius: 30px;
+        font-size: 20px;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(255, 111, 165, 0.3);
-      }
-      .interactive-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(255, 111, 165, 0.5);
+        margin-top: 15px;
+        min-width: 150px;
       }
 
-      /* Scroll Indicator */
-      .scroll-indicator {
+      #restart-btn:hover {
+        background: linear-gradient(135deg, #ff8c00, #ff6b00);
+        transform: scale(1.05);
+      }
+
+      .jumping {
+        bottom: 250px !important;
+      }
+
+      .cloud {
+        position: absolute;
+        background: white;
+        border-radius: 50px;
+        opacity: 0.8;
+      }
+
+      #instructions {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 12px;
+        border-radius: 15px;
+        font-size: 14px;
+        color: #333;
+        z-index: 100;
+        max-width: 200px;
+      }
+
+      /* Mobile-specific styles */
+      @media (max-width: 768px) {
+        #cat {
+          left: 60px;
+          width: 65px;
+          height: 65px;
+        }
+
+        .obstacle {
+          width: 40px;
+          height: 65px;
+        }
+
+        #instructions {
+          font-size: 12px;
+          padding: 10px;
+          max-width: 150px;
+        }
+
+        #score,
+        #coins-display {
+          font-size: 16px;
+          padding: 6px 12px;
+        }
+      }
+
+      /* Touch feedback */
+      .touch-feedback {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, #ff6fa5, #ff8a80);
-        transform-origin: left;
-        transform: scaleX(0);
-        z-index: 1000;
-      }
-
-      /* Floating Hearts */
-      .floating-heart {
-        position: fixed;
-        font-size: 20px;
-        animation: floatHeart 6s ease-in-out infinite;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
         pointer-events: none;
-        z-index: 100;
-      }
-      @keyframes floatHeart {
-        0% {
-          transform: translateY(100vh) rotate(0deg);
-          opacity: 1;
-        }
-        100% {
-          transform: translateY(-100px) rotate(360deg);
-          opacity: 0;
-        }
+        opacity: 0;
+        transition: opacity 0.1s ease;
+        z-index: 999;
       }
 
-      @media (max-width: 600px) {
-        header h1 {
-          font-size: 2rem;
-        }
-        nav {
-          flex-wrap: wrap;
-        }
-        nav button {
-          margin-top: 5px;
+      .touch-feedback.active {
+        opacity: 1;
+      }
+
+      /* Jump button for mobile */
+      #jump-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle, #ffa500, #ff8c00);
+        border: none;
+        border-radius: 50%;
+        font-size: 30px;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        display: none;
+        transition: all 0.2s ease;
+      }
+
+      #jump-button:active {
+        transform: scale(0.9);
+        background: radial-gradient(circle, #ff8c00, #ff6b00);
+      }
+
+      @media (max-width: 768px) {
+        #jump-button {
+          display: block;
         }
       }
     </style>
   </head>
   <body>
-    <div class="scroll-indicator"></div>
+    <div id="game-container">
+      <div style="position: absolute; top: 20px; left: 20px; z-index: 1000">
+        <a href="index.html" style="text-decoration: none">
+          <button
+            style="
+              background: linear-gradient(135deg, #ff6f91, #ff4f70);
+              color: white;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 25px;
+              font-size: 1rem;
+              cursor: pointer;
+              box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+              transition: all 0.3s ease;
+            "
+          >
+            🏠 Home
+          </button>
+        </a>
+      </div>
 
-    <!-- Bubble Background -->
-    <script>
-      for (let i = 0; i < 12; i++) {
-        const bubble = document.createElement("div");
-        bubble.classList.add("bubble");
-        const size = Math.random() * 80 + 30;
-        bubble.style.width = `${size}px`;
-        bubble.style.height = `${size}px`;
-        bubble.style.background = `rgba(${Math.floor(
-          Math.random() * 255
-        )}, ${Math.floor(Math.random() * 255)}, ${Math.floor(
-          Math.random() * 255
-        )}, 0.2)`;
-        bubble.style.left = `${Math.random() * 100}%`;
-        bubble.style.top = `${Math.random() * 100}%`;
-        bubble.style.animationDuration = `${15 + Math.random() * 10}s`;
-        document.body.appendChild(bubble);
-      }
-    </script>
+      <div style="position: absolute; top: 20px; right: 20px; z-index: 1000">
+        <button
+          onclick="toggleMute()"
+          style="
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+          "
+        >
+          🔊
+        </button>
+      </div>
 
-    <header>
-      <h1 id="typing"></h1>
-      <p>🌷 curious about me? ✨</p>
-    </header>
+      <div id="instructions">
+        <strong>🐱 Cat Runner Game</strong><br />
+        Click or press SPACE to jump!
+      </div>
 
-    <nav>
-      <button onclick="showContent('about')">💌 About</button>
-      <button onclick="showContent('rules')">📜 Rules</button>
-      <button onclick="showContent('love')">💖 Love</button>
-      <button onclick="showContent('game')">🎮 Fun</button>
-    </nav>
+      <div id="score">Score: 0</div>
+      <div id="coins-display">Coins: 0</div>
+      <div id="ground"></div>
+      <div id="cat"></div>
 
-    <div id="content" class="content">
-      <h2>💌 About Me</h2>
-      <p>
-        Hi, I'm <b>sintya</b> — or u can call me jeje 🌙<br />
-        seven-teen she/her white slavic intj 💫
-      </p>
+      <div id="game-over">
+        <h2>🐱 Game Over!</h2>
+        <p>Your cat got hit by a tree!</p>
+        <p>Final Score: <span id="final-score">0</span></p>
+        <button id="restart-btn" onclick="restartGame()">Play Again 🐱</button>
+      </div>
+
+      <!-- Audio Elements -->
+      <audio id="bgMusic" loop>
+        <source
+          src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+          type="audio/wav"
+        />
+      </audio>
+      <audio id="jumpSound">
+        <source
+          src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+          type="audio/wav"
+        />
+      </audio>
+      <audio id="coinSound">
+        <source
+          src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+          type="audio/wav"
+        />
+      </audio>
+      <audio id="gameOverSound">
+        <source
+          src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+          type="audio/wav"
+        />
+      </audio>
     </div>
 
     <script>
-      /* Page Content */
-      const pages = {
-        about: `
-            <h2>💌 About Me</h2>
-            <p>Hi, I'm <b>sintya</b> — or u can call me jeje 🌙<br>
-            seven-teen she/her white slavic intj! <br>
-            i really love talking abt boys II planet fyi </p>
-        `,
-        rules: `
-            <h2>📜 Rules</h2>
-            <p>🌷 Be kind & respectful (even to plants 🌱)<br>
-            🌷 Spread positivity like glitter — but without the mess<br>
-            🌷 Keep the magic alive, even on Mondays ✨</p>
-        `,
-        love: `
-            <h2>💖 Love</h2>
-            <p>💫 Boys II Planet esp. zhou anxin!<br>
-            🌙 I also love IDID & wonbin💌<br>
-            P.S. You look amazing today 😉</p>
-        `,
-        game: `
-            <h2>🎮 Fun Games</h2>
-            <p>Enjoy these fun cat-themed games!</p>
-            <div style="margin: 20px 0;">
-                <button onclick="window.location.href='cat-game.html'" class="interactive-btn" style="margin-right: 10px;">
-                    <span style="font-size: 2em;">🐱</span> Cat Runner Game
-                </button>
-                <button onclick="window.location.href='cat-care.html'" class="interactive-btn">
-                    <span style="font-size: 2em;">🐾</span> Cat Care Game
-                </button>
-            </div>
-            <div style="background: rgba(255, 255, 255, 0.8); padding: 20px; border-radius: 15px; margin: 20px 0;">
-                <p><strong>How to play Cat Runner:</strong></p>
-                <p>• Click the Cat Runner button to start the game</p>
-                <p>• Click or press spacebar to make the cat jump</p>
-                <p>• Avoid the trees and obstacles</p>
-                <p>• Try to get the highest score!</p>
-                <br />
-                <p><strong>How to play Cat Care:</strong></p>
-                <p>• Click the Cat Care button to start the game</p>
-                <p>• Feed and play with your virtual cat</p>
-                <p>• Keep your cat happy!</p>
-            </div>
-        `,
-      };
+      const cat = document.getElementById("cat");
+      const scoreElement = document.getElementById("score");
+      const coinsDisplayElement = document.getElementById("coins-display");
+      const gameOverElement = document.getElementById("game-over");
+      const finalScoreElement = document.getElementById("final-score");
+      const gameContainer = document.getElementById("game-container");
 
-      function showContent(page) {
-        const contentDiv = document.getElementById("content");
-        contentDiv.style.animation = "none";
-        void contentDiv.offsetWidth;
-        contentDiv.innerHTML = pages[page];
-        contentDiv.style.animation = "fadeIn 0.6s ease";
-      }
+      let isJumping = false;
+      let isGameOver = false;
+      let score = 0;
+      let coins = 0;
+      let gameSpeed = 5;
+      let obstacles = [];
+      let coinsArray = [];
+      let clouds = [];
+      let gameLoop;
 
-      /* Enhanced Interactive Features */
+      // Load coins from localStorage
+      let totalCoins = parseInt(localStorage.getItem("totalCoins")) || 0;
+      coinsDisplayElement.textContent = "Coins: " + totalCoins;
 
-      // Typing Effect
-      const text = "🌸 Jeanxin Pages";
-      let i = 0;
-      function typingEffect() {
-        if (i < text.length) {
-          document.getElementById("typing").innerHTML += text.charAt(i);
-          i++;
-          setTimeout(typingEffect, 80);
-        }
-      }
-      typingEffect();
-
-      // Custom Cursor
-      const cursor = document.getElementById("cursor");
-      document.addEventListener("mousemove", (e) => {
-        cursor.style.top = e.clientY + "px";
-        cursor.style.left = e.clientX + "px";
-      });
-
-      // Interactive Particles
-      document.addEventListener("click", (e) => {
-        for (let i = 0; i < 5; i++) {
-          const particle = document.createElement("div");
-          particle.className = "particle";
-          particle.style.left = e.clientX + "px";
-          particle.style.top = e.clientY + "px";
-          particle.style.transform = `translate(${
-            (Math.random() - 0.5) * 100
-          }px, ${(Math.random() - 0.5) * 100}px)`;
-          particle.style.transition = "all 1s ease-out";
-          document.body.appendChild(particle);
+      // Jump function
+      function jump() {
+        if (!isJumping && !isGameOver) {
+          isJumping = true;
+          cat.classList.add("jumping");
 
           setTimeout(() => {
-            particle.style.opacity = "0";
-            particle.style.transform = `translate(${
-              (Math.random() - 0.5) * 200
-            }px, ${(Math.random() - 0.5) * 200}px)`;
-            setTimeout(() => particle.remove(), 1000);
-          }, 10);
+            cat.classList.remove("jumping");
+            isJumping = false;
+          }, 300);
+        }
+      }
+
+      // Create obstacle
+      function createObstacle() {
+        if (isGameOver) return;
+
+        const obstacle = document.createElement("div");
+        obstacle.classList.add("obstacle");
+        obstacle.style.left = window.innerWidth + "px";
+        gameContainer.appendChild(obstacle);
+        obstacles.push(obstacle);
+
+        const nextTime = Math.random() * 2000 + 1000;
+        setTimeout(createObstacle, nextTime);
+      }
+
+      // Create coin
+      function createCoin() {
+        if (isGameOver) return;
+
+        const coin = document.createElement("div");
+        coin.classList.add("coin");
+        coin.style.left = window.innerWidth + "px";
+        coin.style.bottom = Math.random() * 100 + 100 + "px";
+        gameContainer.appendChild(coin);
+        coinsArray.push(coin);
+
+        const nextTime = Math.random() * 3000 + 2000;
+        setTimeout(createCoin, nextTime);
+      }
+
+      // Create cloud
+      function createCloud() {
+        const cloud = document.createElement("div");
+        cloud.classList.add("cloud");
+        const size = Math.random() * 50 + 30;
+        cloud.style.width = size + "px";
+        cloud.style.height = size / 2 + "px";
+        cloud.style.top = Math.random() * 200 + "px";
+        cloud.style.left = window.innerWidth + "px";
+        gameContainer.appendChild(cloud);
+        clouds.push(cloud);
+      }
+
+      // Move obstacles
+      function moveObstacles() {
+        if (isGameOver) return;
+
+        obstacles.forEach((obstacle, index) => {
+          const obstacleLeft = parseInt(obstacle.style.left);
+          obstacle.style.left = obstacleLeft - gameSpeed + "px";
+
+          if (obstacleLeft < -50) {
+            obstacle.remove();
+            obstacles.splice(index, 1);
+            score += 10;
+            scoreElement.textContent = "Score: " + score;
+
+            // Increase game speed
+            if (score % 100 === 0) {
+              gameSpeed += 1;
+            }
+          }
+
+          // Collision detection
+          const catRect = cat.getBoundingClientRect();
+          const obstacleRect = obstacle.getBoundingClientRect();
+
+          if (
+            catRect.left < obstacleRect.right &&
+            catRect.right > obstacleRect.left &&
+            catRect.bottom > obstacleRect.top
+          ) {
+            gameOver();
+          }
+        });
+      }
+
+      // Move coins
+      function moveCoins() {
+        if (isGameOver) return;
+
+        coinsArray.forEach((coin, index) => {
+          const coinLeft = parseInt(coin.style.left);
+          coin.style.left = coinLeft - gameSpeed + "px";
+
+          if (coinLeft < -50) {
+            coin.remove();
+            coinsArray.splice(index, 1);
+          }
+
+          // Coin collection detection
+          const catRect = cat.getBoundingClientRect();
+          const coinRect = coin.getBoundingClientRect();
+
+          if (
+            catRect.left < coinRect.right &&
+            catRect.right > coinRect.left &&
+            catRect.bottom > coinRect.top &&
+            catRect.top < coinRect.bottom
+          ) {
+            // Collect coin
+            coin.remove();
+            coinsArray.splice(index, 1);
+            coins++;
+            totalCoins++;
+            localStorage.setItem("totalCoins", totalCoins);
+            coinsDisplayElement.textContent = "Coins: " + totalCoins;
+          }
+        });
+      }
+
+      // Move clouds
+      function moveClouds() {
+        clouds.forEach((cloud, index) => {
+          const cloudLeft = parseInt(cloud.style.left);
+          cloud.style.left = cloudLeft - 1 + "px";
+
+          if (cloudLeft < -100) {
+            cloud.remove();
+            clouds.splice(index, 1);
+          }
+        });
+      }
+
+      // Game over
+      function gameOver() {
+        isGameOver = true;
+        finalScoreElement.textContent = score;
+        gameOverElement.style.display = "block";
+        clearInterval(gameLoop);
+      }
+
+      // Restart game
+      function restartGame() {
+        isGameOver = false;
+        score = 0;
+        coins = 0;
+        gameSpeed = 5;
+        scoreElement.textContent = "Score: 0";
+        gameOverElement.style.display = "none";
+
+        obstacles.forEach((obstacle) => obstacle.remove());
+        coinsArray.forEach((coin) => coin.remove());
+        clouds.forEach((cloud) => cloud.remove());
+        obstacles = [];
+        coinsArray = [];
+        clouds = [];
+
+        createObstacle();
+        createCoin();
+        gameLoop = setInterval(() => {
+          moveObstacles();
+          moveCoins();
+          moveClouds();
+        }, 20);
+      }
+
+      // Event listeners
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space" || e.code === "ArrowUp") {
+          e.preventDefault();
+          jump();
         }
       });
 
-      // Scroll Indicator
-      window.addEventListener("scroll", () => {
-        const scrollIndicator = document.querySelector(".scroll-indicator");
-        const scrollTop = window.pageYOffset;
-        const docHeight = document.body.offsetHeight - window.innerHeight;
-        const scrollPercent = scrollTop / docHeight;
-        scrollIndicator.style.transform = `scaleX(${scrollPercent})`;
+      document.addEventListener("click", () => {
+        jump();
       });
 
-      // Floating Hearts
-      function createFloatingHeart() {
-        const heart = document.createElement("div");
-        heart.className = "floating-heart";
-        heart.innerHTML = "💖";
-        heart.style.left = Math.random() * 100 + "vw";
-        heart.style.animationDuration = Math.random() * 3 + 3 + "s";
-        document.body.appendChild(heart);
+      // Enhanced touch event listeners for mobile devices
+      document.addEventListener(
+        "touchstart",
+        (e) => {
+          e.preventDefault();
+          jump();
+        },
+        { passive: false }
+      );
 
-        setTimeout(() => heart.remove(), 6000);
+      // Ensure restart button works on mobile with both click and touch
+      const restartBtn = document.getElementById("restart-btn");
+      restartBtn.addEventListener("click", restartGame);
+      restartBtn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        restartGame();
+      });
+
+      // Ensure home button works on mobile - prevent touch interference
+      const homeBtn = document.querySelector('a[href="index.html"]');
+      if (homeBtn) {
+        homeBtn.addEventListener("touchstart", (e) => {
+          // Allow default navigation behavior
+          e.stopPropagation();
+        });
       }
 
-      // Create floating hearts periodically
-      setInterval(createFloatingHeart, 3000);
-
-      // Button hover effects
-      document.querySelectorAll("nav button").forEach((button) => {
-        button.addEventListener("mouseenter", () => {
-          button.style.transform = "translateY(-5px) rotate(-2deg)";
-        });
-        button.addEventListener("mouseleave", () => {
-          button.style.transform = "translateY(0) rotate(0)";
-        });
-      });
-
-      // Parallax effect on scroll
-      window.addEventListener("scroll", () => {
-        const scrolled = window.pageYOffset;
-        const parallax = document.querySelector("header");
-        parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
-      });
+      // Initialize game
+      createObstacle();
+      createCoin();
+      setInterval(createCloud, 3000);
+      setInterval(createCoin, 4000);
+      gameLoop = setInterval(() => {
+        moveObstacles();
+        moveCoins();
+        moveClouds();
+      }, 20);
     </script>
-
-    <!-- Cursor -->
-    <div class="cursor" id="cursor"></div>
   </body>
 </html>
