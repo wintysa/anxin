@@ -28,12 +28,98 @@
         background: url("https://cdn-icons-png.flaticon.com/512/1864/1864514.png")
           no-repeat center/contain;
         margin-bottom: 20px;
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease, filter 0.5s ease;
         cursor: pointer;
       }
 
       #cat:hover {
         transform: scale(1.1) rotate(5deg);
+      }
+
+      /* Dirty cat state */
+      #cat.dirty {
+        filter: sepia(0.6) brightness(0.7) saturate(0.7);
+        animation: shake 0.5s infinite;
+        position: relative;
+      }
+
+      /* Water droplets animation */
+      .water-droplet {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: rgba(173, 216, 230, 0.7);
+        border-radius: 50%;
+        animation: drip 1s linear forwards;
+        pointer-events: none;
+        z-index: 1500;
+      }
+
+      @keyframes drip {
+        0% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(30px) scale(0.5);
+        }
+      }
+
+      /* Sparkle effect on clean cat */
+      #cat.clean::after {
+        content: "✨";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.5rem;
+        animation: sparkle 2s infinite;
+        pointer-events: none;
+      }
+
+      @keyframes sparkle {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1) rotate(0deg);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.2) rotate(20deg);
+        }
+      }
+
+      /* Clean cat state */
+      #cat.clean {
+        filter: drop-shadow(0 0 8px #aaf7ff);
+        animation: glow 1.5s infinite alternate;
+      }
+
+      @keyframes shake {
+        0% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+        25% {
+          transform: translate(-3px, 0) rotate(-5deg);
+        }
+        50% {
+          transform: translate(3px, 0) rotate(5deg);
+        }
+        75% {
+          transform: translate(-3px, 0) rotate(-5deg);
+        }
+        100% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+      }
+
+      @keyframes glow {
+        0% {
+          filter: drop-shadow(0 0 5px #aaf7ff);
+        }
+        100% {
+          filter: drop-shadow(0 0 15px #aaf7ff);
+        }
       }
 
       .stats-container {
@@ -199,7 +285,46 @@
   </head>
   <body>
     <h1>🐱 Cat Care Game</h1>
-    <div id="cat"></div>
+    <div
+      id="cat-name-container"
+      style="text-align: center; margin-bottom: 15px"
+    >
+      <input
+        type="text"
+        id="catNameInput"
+        placeholder="Enter your cat's name"
+        style="
+          font-size: 1.2rem;
+          padding: 5px 10px;
+          border-radius: 10px;
+          border: 2px solid #ff6f91;
+          width: 200px;
+          text-align: center;
+          z-index: 1001;
+          position: relative;
+        "
+      />
+      <button
+        id="saveNameBtn"
+        style="
+          margin-left: 10px;
+          padding: 6px 12px;
+          font-size: 1rem;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #ff6f91, #ff4f70);
+          color: white;
+          border: none;
+          cursor: pointer;
+          z-index: 1001;
+          position: relative;
+        "
+      >
+        Save
+      </button>
+    </div>
+    <div id="cat-container" style="position: relative; display: inline-block">
+      <div id="cat"></div>
+    </div>
 
     <div class="stats-container">
       <div class="stat-box" id="status">Happiness: 50 😸</div>
@@ -278,6 +403,8 @@
       let premiumFood = 0;
       let toys = 0;
       let totalCoins = parseInt(localStorage.getItem("totalCoins")) || 0;
+      let dirtiness = parseInt(localStorage.getItem("dirtiness")) || 0;
+      let isBathing = false;
 
       const statusEl = document.getElementById("status");
       const coinsDisplayEl = document.getElementById("coins-display");
@@ -290,6 +417,72 @@
       const playBtn = document.getElementById("playBtn");
       const playToyBtn = document.getElementById("playToyBtn");
       const messageEl = document.getElementById("message");
+      const catContainer = document.getElementById("cat-container");
+      const catNameInput = document.getElementById("catNameInput");
+      const saveNameBtn = document.getElementById("saveNameBtn");
+
+      // Create shower element
+      const shower = document.createElement("div");
+      shower.id = "shower";
+      shower.innerHTML = "🚿";
+      shower.style.cssText = `
+        position: absolute;
+        font-size: 2rem;
+        cursor: grab;
+        z-index: 1000;
+        display: none;
+        user-select: none;
+        transition: transform 0.2s ease;
+      `;
+
+      // Load saved cat name from localStorage
+      const savedCatName = localStorage.getItem("catName");
+      if (savedCatName) {
+        catNameInput.value = savedCatName;
+      }
+
+      // Save cat name button click handler
+      saveNameBtn.addEventListener("click", () => {
+        const newName = catNameInput.value.trim();
+        if (newName.length > 0) {
+          localStorage.setItem("catName", newName);
+          showMessage(`Cat's name saved as "${newName}"`, "success");
+          // Update cat name display
+          updateCatNameDisplay(newName);
+        } else {
+          showMessage("Please enter a valid name.", "error");
+        }
+      });
+
+      // Save cat name on Enter key press
+      catNameInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          saveNameBtn.click();
+        }
+      });
+
+      // Function to update cat name display
+      function updateCatNameDisplay(name) {
+        let catNameDisplay = document.getElementById("catNameDisplay");
+        if (!catNameDisplay) {
+          catNameDisplay = document.createElement("div");
+          catNameDisplay.id = "catNameDisplay";
+          catNameDisplay.style.fontSize = "1.5rem";
+          catNameDisplay.style.fontWeight = "bold";
+          catNameDisplay.style.marginBottom = "10px";
+          catNameDisplay.style.color = "#ff6f91";
+          catContainer.insertBefore(catNameDisplay, catContainer.firstChild);
+        }
+        catNameDisplay.textContent = `🐱 ${name}`;
+      }
+
+      // Initialize cat name display on page load
+      if (savedCatName) {
+        updateCatNameDisplay(savedCatName);
+      }
+
+      document.body.appendChild(shower);
 
       // Update displays
       function updateDisplays() {
@@ -301,14 +494,24 @@
         if (toys > 0) inventoryText += " | Toys: " + toys;
         foodInventoryEl.textContent = inventoryText;
 
-        // Update cat emoji based on happiness
+        // Update cat emoji based on happiness and dirtiness
         let emoji = "😸";
-        if (happiness >= 80) emoji = "😺";
-        else if (happiness >= 50) emoji = "😸";
-        else if (happiness >= 20) emoji = "😼";
-        else emoji = "😿";
+        if (dirtiness >= 70) emoji = "😼";
+        else if (dirtiness >= 40) emoji = "😸";
+        else emoji = "😺";
 
-        statusEl.textContent = "Happiness: " + happiness + " " + emoji;
+        statusEl.textContent = `Happiness: ${happiness} ${emoji} | Cleanliness: ${
+          100 - dirtiness
+        }%`;
+
+        // Update cat appearance based on dirtiness (without visual overlay)
+        if (dirtiness >= 40) {
+          cat.classList.add("dirty");
+          cat.classList.remove("clean");
+        } else {
+          cat.classList.remove("dirty");
+          cat.classList.add("clean");
+        }
 
         // Enable/disable buttons based on inventory
         feedBtn.disabled = catFood <= 0;
@@ -400,6 +603,124 @@
         }
       });
 
+      // Bathing functionality
+      function showBathButton() {
+        console.log("Checking to show bath button, dirtiness:", dirtiness);
+        if (dirtiness >= 30) {
+          const bathBtn = document.createElement("button");
+          bathBtn.id = "bathBtn";
+          bathBtn.innerHTML = '<span class="emoji">🚿</span>Bathe Cat';
+          bathBtn.onclick = startBathing;
+          document.querySelector(".action-buttons").appendChild(bathBtn);
+          console.log("Bath button created and appended");
+        }
+      }
+
+      function startBathing() {
+        console.log("Starting bathing");
+        isBathing = true;
+        shower.style.display = "block";
+        shower.style.left = "50px";
+        shower.style.top = "200px";
+        showMessage("Drag the shower 🚿 to your cat to bathe it!", "success");
+
+        // Remove bath button
+        const bathBtn = document.getElementById("bathBtn");
+        if (bathBtn) bathBtn.remove();
+      }
+
+      // Temporary manual bath button for testing
+      const manualBathBtn = document.createElement("button");
+      manualBathBtn.id = "manualBathBtn";
+      manualBathBtn.innerHTML =
+        '<span class="emoji">🚿</span>Start Bathing (Test)';
+      manualBathBtn.style.marginTop = "10px";
+      manualBathBtn.onclick = startBathing;
+      document.querySelector(".action-section").appendChild(manualBathBtn);
+
+      // Drag functionality for shower
+      let isDragging = false;
+      let offsetX, offsetY;
+
+      shower.addEventListener("mousedown", (e) => {
+        if (!isBathing) return;
+        isDragging = true;
+        shower.style.cursor = "grabbing";
+        offsetX = e.clientX - shower.offsetLeft;
+        offsetY = e.clientY - shower.offsetTop;
+      });
+
+      document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        shower.style.left = e.clientX - offsetX + "px";
+        shower.style.top = e.clientY - offsetY + "px";
+
+        // Create water droplets while dragging
+        createWaterDroplet(e.clientX, e.clientY);
+
+        // Check if shower is over cat
+        const catRect = catContainer.getBoundingClientRect();
+        const showerRect = shower.getBoundingClientRect();
+
+        if (
+          showerRect.left < catRect.right &&
+          showerRect.right > catRect.left &&
+          showerRect.top < catRect.bottom &&
+          showerRect.bottom > catRect.top
+        ) {
+          // Shower is over cat - start cleaning
+          if (dirtiness > 0) {
+            dirtiness = Math.max(dirtiness - 5, 0);
+            happiness = Math.min(happiness + 5, 100);
+            updateDisplays();
+            localStorage.setItem("dirtiness", dirtiness);
+
+            // Visual feedback
+            shower.style.transform = "scale(1.2)";
+            setTimeout(() => (shower.style.transform = "scale(1)"), 200);
+
+            if (dirtiness === 0) {
+              showMessage("✨ Your cat is now clean and happy!", "success");
+              shower.style.display = "none";
+              isBathing = false;
+            }
+          }
+        }
+      });
+
+      document.addEventListener("mouseup", () => {
+        isDragging = false;
+        shower.style.cursor = "grab";
+      });
+
+      // Create water droplet element at x,y
+      function createWaterDroplet(x, y) {
+        const droplet = document.createElement("div");
+        droplet.className = "water-droplet";
+        droplet.style.left = x - 5 + "px";
+        droplet.style.top = y - 5 + "px";
+        document.body.appendChild(droplet);
+        setTimeout(() => {
+          droplet.remove();
+        }, 1000);
+      }
+
+      // Increase dirtiness over time
+      setInterval(() => {
+        dirtiness = Math.min(dirtiness + 3, 100);
+        localStorage.setItem("dirtiness", dirtiness);
+        updateDisplays();
+
+        // Show bath button when dirty
+        if (
+          dirtiness >= 30 &&
+          !document.getElementById("bathBtn") &&
+          !isBathing
+        ) {
+          showBathButton();
+        }
+      }, 10000);
+
       // Decrease happiness over time
       setInterval(() => {
         happiness = Math.max(happiness - 2, 0);
@@ -408,6 +729,9 @@
 
       // Initialize
       updateDisplays();
+      if (dirtiness >= 30) {
+        showBathButton();
+      }
     </script>
   </body>
 </html>
